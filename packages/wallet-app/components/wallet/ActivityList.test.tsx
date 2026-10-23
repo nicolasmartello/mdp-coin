@@ -24,6 +24,17 @@ describe("ActivityList", () => {
     expect(screen.queryByText("No activity yet")).not.toBeInTheDocument();
   });
 
+  it("shows an error, not the empty state, when the history can't be loaded", async () => {
+    const chain = serveTestChain(createTestChain());
+    chain.failAlways("eth_getLogs");
+    await renderActivity();
+
+    // viem retries a failing request 3 times with backoff before the error surfaces
+    expect(await screen.findByText("Couldn't load activity", undefined, { timeout: 5_000 })).toBeInTheDocument();
+    expect(screen.queryByText("No activity yet")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+  });
+
   it("shows the empty state", async () => {
     serveTestChain(createTestChain());
     await renderActivity();

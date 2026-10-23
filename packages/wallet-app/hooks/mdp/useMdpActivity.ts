@@ -20,13 +20,15 @@ export type MdpActivityItem = {
  */
 export const useMdpActivity = (address: Address | undefined) => {
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- local-chain only, see the note above
-  const { data: events, status } = useScaffoldEventHistory({
+  const history = useScaffoldEventHistory({
     contractName: MDP_TOKEN.contractName,
     eventName: "Transfer",
     watch: true,
     blockData: true,
     enabled: Boolean(address),
   });
+
+  const { data: events, status, refetch } = history;
 
   const items = useMemo<MdpActivityItem[]>(() => {
     if (!address || !events) return [];
@@ -54,5 +56,5 @@ export const useMdpActivity = (address: Address | undefined) => {
   }, [address, events]);
 
   // "pending" also covers the moment before the query is enabled, so the UI never flashes "No activity yet"
-  return { items, isLoading: status === "pending" };
+  return { items, isLoading: status === "pending", isError: status === "error", retry: refetch };
 };

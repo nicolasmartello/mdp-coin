@@ -39,7 +39,12 @@ export type TestReceipt = {
 
 type Block = { number: bigint; hash: Hex; timestamp: bigint };
 
-type Seed = { mdp?: Record<Address, bigint>; eth?: Record<Address, bigint> };
+type Seed = {
+  mdp?: Record<Address, bigint>;
+  eth?: Record<Address, bigint>;
+  // false: like a fresh `yarn chain` without `yarn deploy` (no code at the MdpCoin address)
+  mdpDeployed?: boolean;
+};
 
 const key = (address: Address) => address.toLowerCase();
 
@@ -54,7 +59,7 @@ export const createTestChain = (seed: Seed = {}) => {
   const blocks: Block[] = [];
   const logs: TestLog[] = [];
   const receipts = new Map<Hex, TestReceipt>();
-  const failures = new Set<string>();
+  const failures = new Map<string, number>();
   const rawTransactions: Hex[] = [];
   let txCounter = 0;
 
@@ -72,6 +77,7 @@ export const createTestChain = (seed: Seed = {}) => {
 
   const chain = {
     rawTransactions,
+    mdpDeployed: seed.mdpDeployed ?? true,
 
     get latestBlock() {
       return blocks[blocks.length - 1];
@@ -83,9 +89,16 @@ export const createTestChain = (seed: Seed = {}) => {
     mdpBalanceOf: (address: Address) => mdp.get(key(address)) ?? 0n,
     nonceOf: (address: Address) => nonces.get(key(address)) ?? 0,
 
-    /** The next JSON-RPC call to `method` answers with an error */
-    failNext: (method: string) => failures.add(method),
-    consumeFailure: (method: string) => failures.delete(method),
+    /** The next JSON-RPC call to `method` answers with an error (viem's transport retries it) */
+    failNext: (method: string) => failures.set(method, 1),
+    /** Every call to `method` fails, like an RPC that is down: retries don't help */
+    failAlways: (method: string) => failures.set(method, Number.POSITIVE_INFINITY),
+    consumeFailure: (method: string) => {
+      const remaining = failures.get(method) ?? 0;
+      if (remaining <= 0) return false;
+      failures.set(method, remaining - 1);
+      return true;
+    },
 
     logs: () => logs,
     receipt: (hash: Hex) => receipts.get(hash),
@@ -98,12 +111,15 @@ export const createTestChain = (seed: Seed = {}) => {
       from,
       to,
       value = 0n,
+      gasCost = 0n,
       mdpTransfer,
       hash,
     }: {
       from: Address;
       to: Address | null;
       value?: bigint;
+      // ETH burned for gas (the emulator charges a flat gasUsed * gasPrice)
+      gasCost?: bigint;
       mdpTransfer?: { to: Address; amount: bigint };
       hash?: Hex;
     }): Hex {
@@ -112,6 +128,7 @@ export const createTestChain = (seed: Seed = {}) => {
         eth.set(key(from), chain.ethBalanceOf(from) - value);
         eth.set(key(to), chain.ethBalanceOf(to) + value);
       }
+      if (gasCost > 0n) eth.set(key(from), chain.ethBalanceOf(from) - gasCost);
       nonces.set(key(from), chain.nonceOf(from) + 1);
 
       const block = mineBlock();

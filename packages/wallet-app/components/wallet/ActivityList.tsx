@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, CloudOff, History } from "lucide-react";
 import { type Address } from "viem";
+import { Button } from "~~/components/ui/button";
 import { Card } from "~~/components/ui/card";
 import { Skeleton } from "~~/components/ui/skeleton";
 import { type MdpActivityItem, useMdpActivity } from "~~/hooks/mdp";
@@ -44,7 +45,20 @@ const ActivityRow = ({ item }: { item: MdpActivityItem }) => {
 };
 
 export const ActivityList = ({ address }: { address: Address }) => {
-  const { items, isLoading } = useMdpActivity(address);
+  const { items, isLoading, isError, retry } = useMdpActivity(address);
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
+        <CloudOff className="mb-2 size-10 text-muted-foreground/60" aria-hidden />
+        <p className="font-semibold">Couldn&apos;t load activity</p>
+        <p className="text-sm text-muted-foreground">Check that your local chain is running.</p>
+        <Button variant="outline" className="mt-3 rounded-full" onClick={() => retry()}>
+          Try again
+        </Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

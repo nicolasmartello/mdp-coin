@@ -12,6 +12,16 @@ type AmountInputProps = {
   id?: string;
 };
 
+// "1,000" or "12,345.67": commas group thousands, as the app displays balances
+const GROUPED_AMOUNT = /^\d{1,3}(,\d{3})+(\.\d*)?$/;
+
+/**
+ * Grouped amounts (e.g. pasted from a displayed balance) lose their grouping commas;
+ * otherwise a single comma is taken as the decimal separator ("1,5" -> "1.5").
+ */
+const normalizeAmount = (value: string) =>
+  GROUPED_AMOUNT.test(value) ? value.replaceAll(",", "") : value.replace(",", ".");
+
 /**
  * Numeric amount field with the token symbol and an optional "Max" shortcut.
  * Only accepts digits and one dot (a comma becomes a dot), with at most `decimals` fractional digits,
@@ -35,7 +45,7 @@ export const AmountInput = ({ value, onChange, symbol, decimals, onMax, invalid,
         aria-invalid={invalid}
         value={value}
         onChange={event => {
-          const next = event.target.value.replace(",", ".");
+          const next = normalizeAmount(event.target.value);
           if (pattern.test(next)) onChange(next);
         }}
         className="h-14 min-w-0 flex-1 bg-transparent text-2xl font-light tabular-nums outline-none placeholder:text-muted-foreground/60"

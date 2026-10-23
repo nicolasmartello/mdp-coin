@@ -66,7 +66,7 @@ describe("WalletHome", () => {
 
   it("keeps the balance skeleton when the balance read fails", async () => {
     const chain = seededChain();
-    chain.failNext("eth_call");
+    chain.failAlways("eth_call");
     renderWithProviders(<WalletHome address={TEST_ACCOUNT} />);
     await connectBurner();
 

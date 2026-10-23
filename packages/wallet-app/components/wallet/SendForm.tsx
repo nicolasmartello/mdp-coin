@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { type Address, formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
 import { Button } from "~~/components/ui/button";
 import { Label } from "~~/components/ui/label";
+import { Skeleton } from "~~/components/ui/skeleton";
 import { AmountInput } from "~~/components/wallet/AmountInput";
 import { RecipientInput } from "~~/components/wallet/RecipientInput";
 import { useMdpBalance } from "~~/hooks/mdp";
@@ -52,8 +53,9 @@ export const SendForm = ({ address, onSent, onCancel }: SendFormProps) => {
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      await writeContractAsync({ functionName: "transfer", args: [recipient as Address, parsedAmount] });
-      onSent();
+      const hash = await writeContractAsync({ functionName: "transfer", args: [recipient as Address, parsedAmount] });
+      // Scaffold-ETH returns undefined (after its own notification) when it couldn't send at all
+      if (hash) onSent();
     } catch (e) {
       // useScaffoldWriteContract already shows an error notification
       console.error("MDP transfer failed", e);
@@ -73,9 +75,13 @@ export const SendForm = ({ address, onSent, onCancel }: SendFormProps) => {
       <div className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between">
           <Label htmlFor="amount">Amount</Label>
-          <span className="text-xs text-muted-foreground">
-            Available: {formatTokenAmount(balance, MDP_TOKEN.decimals)} {MDP_TOKEN.symbol}
-          </span>
+          {balance === undefined ? (
+            <Skeleton role="status" aria-label="Loading balance" className="h-3.5 w-28" />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Available: {formatTokenAmount(balance, MDP_TOKEN.decimals)} {MDP_TOKEN.symbol}
+            </span>
+          )}
         </div>
         <AmountInput
           id="amount"
@@ -96,7 +102,12 @@ export const SendForm = ({ address, onSent, onCancel }: SendFormProps) => {
         <Button type="button" variant="outline" size="lg" className="flex-1 rounded-full" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" size="lg" className="flex-1 rounded-full" disabled={Boolean(error) || isSubmitting}>
+        <Button
+          type="submit"
+          size="lg"
+          className="flex-1 rounded-full"
+          disabled={Boolean(error) || balance === undefined || isSubmitting}
+        >
           {isSubmitting && <Loader2 className="animate-spin" aria-hidden />}
           Send
         </Button>

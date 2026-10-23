@@ -104,7 +104,7 @@ The local burner wallet connects automatically. The **Faucet** tile gives you te
 
 Both packages fail their test command below **80% coverage**.
 
-Wallet tests render the real components inside the real provider tree (wagmi, React Query, RainbowKit, theme) and connect the real Scaffold-ETH burner wallet. **Only the network is mocked**: MSW emulates the Hardhat JSON-RPC node with in-memory balances, blocks and Transfer logs, so a test that sends MDP really signs a transaction and sees the balances change. Hooks and components are never mocked, and any request without a handler fails the test.
+Wallet tests render the real components inside the same providers the app uses (wagmi, React Query, RainbowKit, theme, toasts; with test settings such as no query retries and a fixed theme) and connect the real Scaffold-ETH burner wallet. **Only the network is mocked**: MSW emulates the Hardhat JSON-RPC node with in-memory balances, blocks and Transfer logs, so a test that sends MDP really signs a transaction and sees the balances change. Hooks and components are never mocked, and any request without a handler fails the test.
 
 ## Test locally
 

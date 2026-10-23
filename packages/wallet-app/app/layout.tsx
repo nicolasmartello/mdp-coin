@@ -12,7 +12,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = getMetadata({
   title: "MdpCoin",
-  description: "Enviá y recibí MdpCoin (MDP)",
+  description: "MdpCoin (MDP): a blockchain lab wallet built on Scaffold-ETH 2. Not a real currency.",
 });
 
 export const viewport: Viewport = {
@@ -27,7 +27,7 @@ export const viewport: Viewport = {
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="es" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body>
         <ThemeProvider attribute={["class", "data-theme"]} defaultTheme="system" enableSystem disableTransitionOnChange>
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>

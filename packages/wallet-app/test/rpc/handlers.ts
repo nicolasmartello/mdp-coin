@@ -28,6 +28,7 @@ class RpcError extends Error {
 }
 
 const LOCAL_CHAIN_ID = 31337;
+const GAS_LIMIT = 100_000n;
 const MAINNET_CHAIN_ID = 1;
 const GAS_PRICE = parseGwei("1");
 const mdpAddress = getAddress(MDP_COIN.address);
@@ -82,6 +83,11 @@ const decodeMdpTransfer = (to: Address | null | undefined, data: Hex | undefined
   return { to: recipient, amount };
 };
 
+/** Like a real node: the sender must hold enough ETH for gas * price + value */
+const assertCanPay = (chain: TestChain, from: Address, cost: bigint) => {
+  if (chain.ethBalanceOf(from) < cost) throw new RpcError(-32000, "insufficient funds for gas * price + value");
+};
+
 const assertCanTransfer = (chain: TestChain, from: Address, transfer?: { amount: bigint }) => {
   if (!transfer) return;
   const balance = chain.mdpBalanceOf(from);
@@ -99,7 +105,7 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
   eth_getTransactionCount: (chain, [address]) => numberToHex(chain.nonceOf(address)),
   eth_gasPrice: () => numberToHex(GAS_PRICE),
   eth_maxPriorityFeePerGas: () => numberToHex(GAS_PRICE),
-  eth_getCode: (_chain, [address]) => (isAddressEqual(address, mdpAddress) ? "0x6080" : "0x"),
+  eth_getCode: (chain, [address]) => (chain.mdpDeployed && isAddressEqual(address, mdpAddress) ? "0x6080" : "0x"),
   eth_getBlockByNumber: (chain, [tag]) => {
     const block = blockByTag(chain, tag);
     return block ? formatBlock(block) : null;
@@ -109,7 +115,8 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
     return block ? formatBlock(block) : null;
   },
   eth_call: (chain, [{ from, to, data }]) => {
-    if (!to || !isAddressEqual(to, mdpAddress)) return "0x";
+    // A call to an address without code returns empty data, like on a real node
+    if (!to || !isAddressEqual(to, mdpAddress) || !chain.mdpDeployed) return "0x";
     const { functionName, args } = decodeFunctionData({ abi: MDP_COIN.abi, data });
     const results: Record<string, unknown> = {
       balanceOf: () => chain.mdpBalanceOf((args as [Address])[0]),
@@ -131,20 +138,24 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
       result: (result as () => bigint | boolean)() as bigint,
     });
   },
-  eth_estimateGas: (chain, [{ from, to, data }]) => {
+  eth_estimateGas: (chain, [{ from, to, data, value }]) => {
+    if (from) assertCanPay(chain, from, GAS_LIMIT * GAS_PRICE + (value ? BigInt(value) : 0n));
     assertCanTransfer(chain, from, decodeMdpTransfer(to, data));
-    return numberToHex(100_000);
+    return numberToHex(GAS_LIMIT);
   },
   eth_sendRawTransaction: async (chain, [serializedTransaction]) => {
     const transaction = parseTransaction(serializedTransaction);
     const from = await recoverTransactionAddress({ serializedTransaction });
     const mdpTransfer = decodeMdpTransfer(transaction.to, transaction.data);
+    const maxFee = transaction.maxFeePerGas ?? transaction.gasPrice ?? GAS_PRICE;
+    assertCanPay(chain, from, (transaction.gas ?? GAS_LIMIT) * maxFee + (transaction.value ?? 0n));
     assertCanTransfer(chain, from, mdpTransfer);
     chain.rawTransactions.push(serializedTransaction);
     return chain.applyTransaction({
       from,
       to: transaction.to ?? null,
       value: transaction.value,
+      gasCost: GAS_LIMIT * GAS_PRICE,
       mdpTransfer,
       hash: keccak256(serializedTransaction),
     });
@@ -154,7 +165,13 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
     if (!isAddressEqual(from, DEPLOYER)) throw new RpcError(-32000, "unknown account");
     const mdpTransfer = decodeMdpTransfer(to, data);
     assertCanTransfer(chain, from, mdpTransfer);
-    return chain.applyTransaction({ from, to, value: value ? BigInt(value) : 0n, mdpTransfer });
+    return chain.applyTransaction({
+      from,
+      to,
+      value: value ? BigInt(value) : 0n,
+      gasCost: GAS_LIMIT * GAS_PRICE,
+      mdpTransfer,
+    });
   },
   eth_getTransactionReceipt: (chain, [hash]) => {
     const receipt = chain.receipt(hash);
@@ -163,8 +180,8 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
       ...receipt,
       blockNumber: numberToHex(receipt.blockNumber),
       transactionIndex: "0x0",
-      cumulativeGasUsed: numberToHex(100_000),
-      gasUsed: numberToHex(100_000),
+      cumulativeGasUsed: numberToHex(GAS_LIMIT),
+      gasUsed: numberToHex(GAS_LIMIT),
       effectiveGasPrice: numberToHex(GAS_PRICE),
       contractAddress: null,
       logs: receipt.logs.map(formatLog),
