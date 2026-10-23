@@ -1,0 +1,35 @@
+import { describe, expect, it } from "vitest";
+import { TEST_ACCOUNT } from "~~/test/wallet";
+import { formatRelativeTime, formatTokenAmount, shortenAddress } from "~~/utils/ui/format";
+
+const now = () => Math.floor(Date.now() / 1000);
+
+describe("formatTokenAmount", () => {
+  it("groups thousands and truncates to 4 decimals", () => {
+    expect(formatTokenAmount(1234567890000000000000n, 18)).toBe("1,234.5678");
+  });
+
+  it("formats an unknown amount as zero", () => {
+    expect(formatTokenAmount(undefined, 18)).toBe("0");
+  });
+
+  it("drops trailing zeros", () => {
+    expect(formatTokenAmount(10n ** 18n, 18, 2)).toBe("1");
+  });
+});
+
+describe("shortenAddress", () => {
+  it("keeps the first and last 4 hex characters", () => {
+    expect(shortenAddress(TEST_ACCOUNT)).toBe("0x7099...79C8");
+  });
+});
+
+describe("formatRelativeTime", () => {
+  it("formats seconds in English", () => {
+    expect(formatRelativeTime(now() - 30)).toBe("30 seconds ago");
+  });
+
+  it("formats hours in English", () => {
+    expect(formatRelativeTime(now() - 7200)).toBe("2 hours ago");
+  });
+});
