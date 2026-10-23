@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 import { useIsClient } from "usehooks-ts";
 import { type Address } from "viem";
 import { useAccount } from "wagmi";
-import { Skeleton } from "~~/components/legacy-ui";
+import { Skeleton } from "~~/components/ui/skeleton";
 import { ConnectPrompt } from "~~/components/wallet/ConnectPrompt";
 import { WrongNetwork } from "~~/components/wallet/WrongNetwork";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
@@ -27,7 +27,7 @@ export const WalletGate = ({ children }: WalletGateProps) => {
   if (!isClient || status === "reconnecting" || status === "connecting") {
     return (
       <div className="flex flex-col items-center gap-4 px-6 pt-24">
-        <Skeleton className="size-16 rounded-pill" />
+        <Skeleton className="size-16 rounded-full" />
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-4 w-24" />
       </div>

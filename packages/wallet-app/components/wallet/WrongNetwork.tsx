@@ -1,8 +1,8 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { useSwitchChain } from "wagmi";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { Button, EmptyState } from "~~/components/legacy-ui";
+import { Button } from "~~/components/ui/button";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 export const WrongNetwork = () => {
@@ -10,16 +10,17 @@ export const WrongNetwork = () => {
   const { switchChain, isPending } = useSwitchChain();
 
   return (
-    <EmptyState
-      className="flex-1 justify-center"
-      icon={<ExclamationTriangleIcon className="text-warning" />}
-      title="Red incorrecta"
-      description={`MdpCoin vive en la red ${targetNetwork.name}. Cambiá de red en tu wallet para continuar.`}
-      action={
-        <Button loading={isPending} onClick={() => switchChain({ chainId: targetNetwork.id })}>
-          Cambiar a {targetNetwork.name}
-        </Button>
-      }
-    />
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+      <TriangleAlert className="size-10 text-amber-500" aria-hidden />
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">Wrong network</h2>
+        <p className="text-sm text-muted-foreground">
+          MdpCoin lives on {targetNetwork.name}. Switch networks in your wallet to continue.
+        </p>
+      </div>
+      <Button className="rounded-full" disabled={isPending} onClick={() => switchChain({ chainId: targetNetwork.id })}>
+        Switch to {targetNetwork.name}
+      </Button>
+    </div>
   );
 };

@@ -8,7 +8,11 @@ const TEST_ACCOUNT_KEY = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4
 
 const BURNER_STORAGE_KEY = "burnerWallet.pk";
 
-/** Connects the real Scaffold-ETH burner wallet, holding TEST_ACCOUNT's key */
+/**
+ * Connects the real Scaffold-ETH burner wallet, holding TEST_ACCOUNT's key.
+ * Call it after rendering: WagmiProvider (ssr: true) rehydrates from storage on mount and would
+ * drop a connection made before it, just like a user who connects once the page has loaded.
+ */
 export const connectBurner = async () => {
   localStorage.setItem(BURNER_STORAGE_KEY, TEST_ACCOUNT_KEY);
   const connector = wagmiConfig.connectors.find(c => c.id === "burnerWallet");

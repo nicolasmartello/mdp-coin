@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 import { useMdpBalance } from "~~/hooks/mdp";
 import { renderWithProviders } from "~~/test/render";
 import { createTestChain } from "~~/test/rpc/testChain";
-import { useTestChain } from "~~/test/server";
+import { serveTestChain } from "~~/test/server";
 import { TEST_ACCOUNT, connectBurner } from "~~/test/wallet";
 
 const BalanceProbe = () => {
@@ -20,7 +20,7 @@ const BalanceProbe = () => {
 
 describe("test harness", () => {
   it("connects the burner wallet and reads the MDP balance through MSW", async () => {
-    useTestChain(createTestChain({ mdp: { [TEST_ACCOUNT]: parseUnits("75", 18) } }));
+    serveTestChain(createTestChain({ mdp: { [TEST_ACCOUNT]: parseUnits("75", 18) } }));
     renderWithProviders(<BalanceProbe />);
     await connectBurner();
 

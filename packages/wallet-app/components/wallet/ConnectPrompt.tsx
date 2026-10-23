@@ -1,7 +1,7 @@
 "use client";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { Button } from "~~/components/legacy-ui";
+import { Button } from "~~/components/ui/button";
 import { MdpLogo } from "~~/components/wallet/MdpLogo";
 
 export const ConnectPrompt = () => {
@@ -9,13 +9,15 @@ export const ConnectPrompt = () => {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
-      <MdpLogo className="size-20" />
+      <MdpLogo className="size-20" decorative />
       <div className="flex flex-col gap-2">
-        <h1 className="m-0 text-2xl font-bold">MdpCoin</h1>
-        <p className="m-0 text-base-content/60">Conectá tu wallet para ver tu saldo, enviar y recibir MDP.</p>
+        <h1 className="text-2xl font-semibold">MdpCoin</h1>
+        <p className="text-sm text-muted-foreground">
+          Connect your wallet to see your balance and send or receive MDP.
+        </p>
       </div>
-      <Button size="lg" fullWidth onClick={openConnectModal}>
-        Conectar wallet
+      <Button size="lg" className="w-full rounded-full" onClick={openConnectModal}>
+        Connect wallet
       </Button>
     </div>
   );
