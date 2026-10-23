@@ -20,6 +20,10 @@ The contract ([`MdpCoin.sol`](packages/hardhat/contracts/MdpCoin.sol)) follows t
 
 A stablecoin (such as USDC or DAI) holds a peg to a currency, for example 1 token = 1 USD, backed by reserves, collateral, or some stabilization mechanism.
 
+<img width="507" height="1095" alt="image" src="https://github.com/user-attachments/assets/90be949c-d562-48e3-920d-8c0f65e9f12a" />
+
+<img width="1575" height="1117" alt="image" src="https://github.com/user-attachments/assets/fbe5322c-8ef8-43f4-a77b-0f850a428369" />
+
 **MdpCoin has none of that**:
 
 - It is not pegged to the US dollar, the Argentine peso, or any other currency or asset.
