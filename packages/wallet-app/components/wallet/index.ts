@@ -12,6 +12,7 @@ export * from "./ReceiveCard";
 export * from "./RecipientInput";
 export * from "./ScreenHeader";
 export * from "./SendForm";
+export * from "./SettingsList";
 export * from "./WalletGate";
 export * from "./WalletHome";
 export * from "./WalletShell";
