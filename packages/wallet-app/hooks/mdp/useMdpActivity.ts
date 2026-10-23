@@ -20,7 +20,7 @@ export type MdpActivityItem = {
  */
 export const useMdpActivity = (address: Address | undefined) => {
   // eslint-disable-next-line @typescript-eslint/no-deprecated -- local-chain only, see the note above
-  const { data: events, isLoading } = useScaffoldEventHistory({
+  const { data: events, status } = useScaffoldEventHistory({
     contractName: MDP_TOKEN.contractName,
     eventName: "Transfer",
     watch: true,
@@ -53,5 +53,6 @@ export const useMdpActivity = (address: Address | undefined) => {
     });
   }, [address, events]);
 
-  return { items, isLoading };
+  // "pending" also covers the moment before the query is enabled, so the UI never flashes "No activity yet"
+  return { items, isLoading: status === "pending" };
 };

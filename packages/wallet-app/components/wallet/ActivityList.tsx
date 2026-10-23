@@ -1,72 +1,84 @@
 "use client";
 
+import { ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
 import { type Address } from "viem";
-import { ArrowDownLeftIcon, ArrowUpRightIcon, ClockIcon } from "@heroicons/react/24/outline";
-import { Avatar, EmptyState, ListItem, Skeleton } from "~~/components/legacy-ui";
-import { useMdpActivity } from "~~/hooks/mdp";
+import { Card } from "~~/components/ui/card";
+import { Skeleton } from "~~/components/ui/skeleton";
+import { type MdpActivityItem, useMdpActivity } from "~~/hooks/mdp";
+import { cn } from "~~/lib/utils";
 import { MDP_TOKEN } from "~~/utils/mdp/token";
-import { cn, formatRelativeTime, formatTokenAmount, shortenAddress } from "~~/utils/ui";
+import { formatRelativeTime, formatTokenAmount, shortenAddress } from "~~/utils/ui";
+
+const ActivityRow = ({ item }: { item: MdpActivityItem }) => {
+  const isIncoming = item.direction === "in";
+  const Icon = isIncoming ? ArrowDownLeft : ArrowUpRight;
+
+  return (
+    <li className="flex items-center gap-3 px-4 py-3">
+      <span
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-full",
+          isIncoming ? "bg-success/10 text-success" : "bg-secondary text-secondary-foreground",
+        )}
+        aria-hidden
+      >
+        <Icon className="size-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">{isIncoming ? "Received" : "Sent"}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {isIncoming ? "From " : "To "}
+          <span className="font-mono">{shortenAddress(item.counterparty)}</span>
+          {item.timestamp !== undefined && ` · ${formatRelativeTime(item.timestamp)}`}
+        </p>
+      </div>
+      <div className="flex flex-col items-end">
+        <span className={cn("text-sm font-semibold tabular-nums", isIncoming && "text-success")}>
+          {isIncoming ? "+" : "-"}
+          {formatTokenAmount(item.amount, MDP_TOKEN.decimals)}
+        </span>
+        <span className="text-xs text-muted-foreground">{MDP_TOKEN.symbol}</span>
+      </div>
+    </li>
+  );
+};
 
 export const ActivityList = ({ address }: { address: Address }) => {
   const { items, isLoading } = useMdpActivity(address);
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 px-4 py-4">
+      <Card className="gap-4 px-4 py-4 shadow-card" aria-busy="true" aria-label="Loading activity">
         {[0, 1, 2].map(i => (
           <div key={i} className="flex items-center gap-3">
-            <Skeleton className="size-10 rounded-pill" />
+            <Skeleton className="size-9 rounded-full" />
             <div className="flex flex-1 flex-col gap-2">
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3.5 w-20" />
               <Skeleton className="h-3 w-36" />
             </div>
           </div>
         ))}
-      </div>
+      </Card>
     );
   }
 
   if (items.length === 0) {
     return (
-      <EmptyState
-        icon={<ClockIcon />}
-        title="Todavía no hay movimientos"
-        description="Cuando envíes o recibas MDP, vas a verlo acá."
-      />
+      <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
+        <History className="mb-2 size-10 text-muted-foreground/60" aria-hidden />
+        <p className="font-semibold">No activity yet</p>
+        <p className="text-sm text-muted-foreground">When you send or receive MDP, it will show up here.</p>
+      </div>
     );
   }
 
   return (
-    <ul className="m-0 list-none p-0">
-      {items.map(item => {
-        const isIncoming = item.direction === "in";
-        return (
-          <li key={item.id}>
-            <ListItem
-              leading={
-                <Avatar className={cn(isIncoming && "bg-success/10 text-success")}>
-                  {isIncoming ? <ArrowDownLeftIcon /> : <ArrowUpRightIcon />}
-                </Avatar>
-              }
-              title={isIncoming ? "Recibido" : "Enviado"}
-              subtitle={
-                <>
-                  {isIncoming ? "De " : "A "}
-                  <span className="font-mono">{shortenAddress(item.counterparty)}</span>
-                  {item.timestamp !== undefined && ` · ${formatRelativeTime(item.timestamp)}`}
-                </>
-              }
-              trailingTitle={
-                <span className={cn(isIncoming && "text-success")}>
-                  {isIncoming ? "+" : "-"}
-                  {formatTokenAmount(item.amount, MDP_TOKEN.decimals)}
-                </span>
-              }
-              trailingSubtitle={MDP_TOKEN.symbol}
-            />
-          </li>
-        );
-      })}
-    </ul>
+    <Card className="gap-0 py-1 shadow-card">
+      <ul className="divide-y">
+        {items.map(item => (
+          <ActivityRow key={item.id} item={item} />
+        ))}
+      </ul>
+    </Card>
   );
 };
