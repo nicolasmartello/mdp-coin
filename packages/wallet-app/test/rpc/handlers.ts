@@ -108,11 +108,16 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
     const block = chain.blockByHash(hash);
     return block ? formatBlock(block) : null;
   },
-  eth_call: (chain, [{ to, data }]) => {
+  eth_call: (chain, [{ from, to, data }]) => {
     if (!to || !isAddressEqual(to, mdpAddress)) return "0x";
     const { functionName, args } = decodeFunctionData({ abi: MDP_COIN.abi, data });
     const results: Record<string, unknown> = {
       balanceOf: () => chain.mdpBalanceOf((args as [Address])[0]),
+      // Simulation before sending (wagmi/Scaffold-ETH simulate writes): reverts like the contract would
+      transfer: () => {
+        assertCanTransfer(chain, from, decodeMdpTransfer(to, data));
+        return true;
+      },
       name: () => "MdpCoin",
       symbol: () => "MDP",
       decimals: () => 18,
@@ -123,7 +128,7 @@ const localMethods: Record<string, (chain: TestChain, params: any[]) => unknown 
     return encodeFunctionResult({
       abi: MDP_COIN.abi,
       functionName: functionName as "balanceOf",
-      result: (result as () => bigint)(),
+      result: (result as () => bigint | boolean)() as bigint,
     });
   },
   eth_estimateGas: (chain, [{ from, to, data }]) => {

@@ -1,9 +1,10 @@
 "use client";
 
-import { type SubmitEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { type SubmitEvent, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { type Address, formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
-import { Button } from "~~/components/legacy-ui";
+import { Button } from "~~/components/ui/button";
+import { Label } from "~~/components/ui/label";
 import { AmountInput } from "~~/components/wallet/AmountInput";
 import { RecipientInput } from "~~/components/wallet/RecipientInput";
 import { useMdpBalance } from "~~/hooks/mdp";
@@ -11,64 +12,69 @@ import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { MDP_TOKEN } from "~~/utils/mdp/token";
 import { formatTokenAmount } from "~~/utils/ui";
 
-const parseAmount = (amount: string) => {
-  if (!amount || amount === ".") return 0n;
-  return parseUnits(amount, MDP_TOKEN.decimals);
-};
+const parseAmount = (amount: string) => (amount === "" || amount === "." ? 0n : parseUnits(amount, MDP_TOKEN.decimals));
 
 /**
  * Returns the first problem with the form, or undefined when it can be submitted.
  */
 const validate = (from: Address, to: string, amount: bigint, balance: bigint | undefined) => {
-  if (!to) return "Ingresá una dirección";
-  if (!isAddress(to)) return "Dirección inválida";
-  if (isAddressEqual(to, from)) return "No podés enviarte a vos mismo";
-  if (amount === 0n) return "Ingresá un monto";
-  if (balance !== undefined && amount > balance) return "Saldo insuficiente";
+  if (!to) return "Enter an address";
+  if (!isAddress(to)) return "Invalid address";
+  if (isAddressEqual(to, from)) return "You can't send to yourself";
+  if (amount === 0n) return "Enter an amount";
+  if (balance !== undefined && amount > balance) return "Insufficient balance";
   return undefined;
 };
 
-export const SendForm = ({ address }: { address: Address }) => {
-  const router = useRouter();
+type SendFormProps = {
+  address: Address;
+  onSent: () => void;
+  onCancel: () => void;
+};
+
+export const SendForm = ({ address, onSent, onCancel }: SendFormProps) => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // A ref, unlike state, is already set when a second click arrives in the same tick
+  const submittingRef = useRef(false);
   const { balance } = useMdpBalance(address);
-  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: MDP_TOKEN.contractName });
+  const { writeContractAsync } = useScaffoldWriteContract({ contractName: MDP_TOKEN.contractName });
 
   const parsedAmount = parseAmount(amount);
   const error = validate(address, recipient, parsedAmount, balance);
-  // Don't shout at the user before they typed anything
+  // Don't flag errors before the user typed anything
   const visibleError = recipient || amount ? error : undefined;
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (error) return;
+    if (error || submittingRef.current) return;
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
-      await writeContractAsync({
-        functionName: "transfer",
-        args: [recipient as Address, parsedAmount],
-      });
-      router.push("/?tab=activity");
+      await writeContractAsync({ functionName: "transfer", args: [recipient as Address, parsedAmount] });
+      onSent();
     } catch (e) {
       // useScaffoldWriteContract already shows an error notification
       console.error("MDP transfer failed", e);
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-6 px-4 pt-2 pb-6">
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-semibold">Para</label>
+        <Label>To</Label>
         <RecipientInput value={recipient} onChange={setRecipient} />
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between">
-          <label htmlFor="amount" className="text-sm font-semibold">
-            Monto
-          </label>
-          <span className="text-xs text-base-content/60">
-            Disponible: {formatTokenAmount(balance, MDP_TOKEN.decimals)} {MDP_TOKEN.symbol}
+          <Label htmlFor="amount">Amount</Label>
+          <span className="text-xs text-muted-foreground">
+            Available: {formatTokenAmount(balance, MDP_TOKEN.decimals)} {MDP_TOKEN.symbol}
           </span>
         </div>
         <AmountInput
@@ -77,21 +83,22 @@ export const SendForm = ({ address }: { address: Address }) => {
           onChange={setAmount}
           symbol={MDP_TOKEN.symbol}
           decimals={MDP_TOKEN.decimals}
-          error={visibleError === "Saldo insuficiente"}
+          invalid={visibleError === "Insufficient balance"}
           onMax={balance !== undefined ? () => setAmount(formatUnits(balance, MDP_TOKEN.decimals)) : undefined}
         />
       </div>
 
-      <p className="m-0 min-h-5 text-sm text-error" role="alert">
+      <p className="min-h-5 text-sm text-destructive" role="alert">
         {visibleError}
       </p>
 
       <div className="mt-auto flex gap-3">
-        <Button variant="secondary" size="lg" fullWidth onClick={() => router.push("/")}>
-          Cancelar
+        <Button type="button" variant="outline" size="lg" className="flex-1 rounded-full" onClick={onCancel}>
+          Cancel
         </Button>
-        <Button type="submit" size="lg" fullWidth disabled={Boolean(error)} loading={isMining}>
-          Enviar
+        <Button type="submit" size="lg" className="flex-1 rounded-full" disabled={Boolean(error) || isSubmitting}>
+          {isSubmitting && <Loader2 className="animate-spin" aria-hidden />}
+          Send
         </Button>
       </div>
     </form>
