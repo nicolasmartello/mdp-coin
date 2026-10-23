@@ -1,7 +1,7 @@
 "use client";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { Button } from "~~/components/ui";
+import { Button } from "~~/components/legacy-ui";
 import { MdpLogo } from "~~/components/wallet/MdpLogo";
 
 export const ConnectPrompt = () => {

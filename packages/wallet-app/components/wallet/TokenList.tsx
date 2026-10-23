@@ -2,7 +2,7 @@
 
 import { useWatchBalance } from "@scaffold-ui/hooks";
 import { type Address } from "viem";
-import { Avatar, ListItem, Skeleton } from "~~/components/ui";
+import { Avatar, ListItem, Skeleton } from "~~/components/legacy-ui";
 import { MdpLogo } from "~~/components/wallet/MdpLogo";
 import { useMdpBalance } from "~~/hooks/mdp";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";

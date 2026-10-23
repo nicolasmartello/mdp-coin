@@ -2,7 +2,7 @@
 
 import { type Address } from "viem";
 import { ArrowDownLeftIcon, ArrowUpRightIcon, ClockIcon } from "@heroicons/react/24/outline";
-import { Avatar, EmptyState, ListItem, Skeleton } from "~~/components/ui";
+import { Avatar, EmptyState, ListItem, Skeleton } from "~~/components/legacy-ui";
 import { useMdpActivity } from "~~/hooks/mdp";
 import { MDP_TOKEN } from "~~/utils/mdp/token";
 import { cn, formatRelativeTime, formatTokenAmount, shortenAddress } from "~~/utils/ui";

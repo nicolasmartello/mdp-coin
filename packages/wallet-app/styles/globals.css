@@ -1,59 +1,141 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+/* `.dark` is set by next-themes for shadcn; `[data-theme=dark]` for DaisyUI on the dev pages */
+@custom-variant dark (&:where(.dark, .dark *, [data-theme=dark], [data-theme=dark] *));
 
 /*
-  Design tokens shared by every component.
-  Colors live in the DaisyUI themes below (bg-base-100, text-primary, ...);
-  everything theme-independent (font, radii, shadows, motion) lives here.
+  Design tokens (shadcn/ui convention): raw values live in :root / .dark,
+  and @theme inline exposes them as Tailwind colors (bg-background, text-primary, ...).
+  Direction C: calm surfaces, with the Atomic-style blue gradient reserved for the balance card.
 */
-@theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+:root {
+  --radius: 1rem;
 
-  --radius-pill: 9999px;
-  --radius-card: 1rem;
+  --background: #f4f7fc;
+  --foreground: #0f1b33;
+  --card: #ffffff;
+  --card-foreground: #0f1b33;
+  --popover: #ffffff;
+  --popover-foreground: #0f1b33;
+  --primary: #1f6fff;
+  --primary-foreground: #ffffff;
+  --secondary: #eaf1ff;
+  --secondary-foreground: #1f6fff;
+  --muted: #eef2f8;
+  --muted-foreground: #6b7a99;
+  --accent: #eaf1ff;
+  --accent-foreground: #1f6fff;
+  --destructive: #dc2626;
+  --success: #16a34a;
+  --border: #e3e9f4;
+  --input: #e3e9f4;
+  --ring: #1f6fff;
 
-  --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
-  --shadow-sheet: 0 -8px 32px -12px rgb(0 0 0 / 0.25);
-
-  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* Action tiles and the card shadow tint */
+  --tile: #ffffff;
+  --tile-border: #e3e9f4;
+  --tile-foreground: #1f6fff;
+  --card-shadow: 0 4px 16px -10px rgb(31 111 255 / 0.25);
 }
 
+.dark,
+[data-theme="dark"] {
+  --background: #121826;
+  --foreground: #edf2ff;
+  --card: #1a2234;
+  --card-foreground: #edf2ff;
+  --popover: #1a2234;
+  --popover-foreground: #edf2ff;
+  --primary: #4ea3ff;
+  --primary-foreground: #0b1220;
+  --secondary: #1f2a40;
+  --secondary-foreground: #5fb0ff;
+  --muted: #1f2a40;
+  --muted-foreground: #8995ad;
+  --accent: #1f2a40;
+  --accent-foreground: #5fb0ff;
+  --destructive: #f87171;
+  --success: #34d399;
+  --border: #242e45;
+  --input: #2b3755;
+  --ring: #4ea3ff;
+
+  --tile: #1f2a40;
+  --tile-border: #2b3755;
+  --tile-foreground: #5fb0ff;
+  --card-shadow: none;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 6px);
+  --radius-lg: calc(var(--radius) - 4px);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 6px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-tile: var(--tile);
+  --color-tile-border: var(--tile-border);
+  --color-tile-foreground: var(--tile-foreground);
+
+  --shadow-card: var(--card-shadow);
+}
+
+/* The one place the Atomic gradient is used: the balance card */
+@utility bg-balance-gradient {
+  background-image: linear-gradient(135deg, #1f6fff 0%, #3fa9ff 60%, #63d2ff 100%);
+}
+
+/* DaisyUI is kept only for the Scaffold-ETH dev pages; its themes read the same tokens */
 @plugin "daisyui" {
   themes:
     light,
     dark --prefersdark;
 }
 
-/* Wallet palette, inspired by MetaMask's design tokens */
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #4459ff;
-  --color-primary-content: #ffffff;
-  --color-secondary: #eef0ff;
-  --color-secondary-content: #4459ff;
-  --color-accent: #4459ff;
-  --color-accent-content: #ffffff;
-  --color-neutral: #121314;
-  --color-neutral-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f3f5f9;
-  --color-base-300: #e4e7ee;
-  --color-base-content: #121314;
-  --color-info: #4459ff;
-  --color-info-content: #ffffff;
-  --color-success: #1c7e33;
-  --color-success-content: #ffffff;
-  --color-warning: #9a6300;
-  --color-warning-content: #ffffff;
-  --color-error: #ca3542;
-  --color-error-content: #ffffff;
+  --color-base-100: var(--card);
+  --color-base-200: var(--background);
+  --color-base-300: var(--border);
+  --color-base-content: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-content: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-content: var(--secondary-foreground);
+  --color-accent: var(--primary);
+  --color-accent-content: var(--primary-foreground);
+  --color-neutral: var(--foreground);
+  --color-neutral-content: var(--background);
+  --color-info: var(--primary);
+  --color-success: var(--success);
+  --color-error: var(--destructive);
 
   --radius-field: 0.75rem;
   --radius-box: 1rem;
   --radius-selector: 9999px;
-
   --depth: 0;
   --noise: 0;
 }
@@ -61,61 +143,49 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #8b99ff;
-  --color-primary-content: #121314;
-  --color-secondary: #23264a;
-  --color-secondary-content: #8b99ff;
-  --color-accent: #8b99ff;
-  --color-accent-content: #121314;
-  --color-neutral: #ffffff;
-  --color-neutral-content: #121314;
-  --color-base-100: #121314;
-  --color-base-200: #1c1d20;
-  --color-base-300: #2c2d31;
-  --color-base-content: #ffffff;
-  --color-info: #8b99ff;
-  --color-info-content: #121314;
-  --color-success: #28a745;
-  --color-success-content: #121314;
-  --color-warning: #f0b034;
-  --color-warning-content: #121314;
-  --color-error: #e06470;
-  --color-error-content: #121314;
+  --color-base-100: var(--card);
+  --color-base-200: var(--background);
+  --color-base-300: var(--border);
+  --color-base-content: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-content: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-content: var(--secondary-foreground);
+  --color-accent: var(--primary);
+  --color-accent-content: var(--primary-foreground);
+  --color-neutral: var(--foreground);
+  --color-neutral-content: var(--background);
+  --color-info: var(--primary);
+  --color-success: var(--success);
+  --color-error: var(--destructive);
 
   --radius-field: 0.75rem;
   --radius-box: 1rem;
   --radius-selector: 9999px;
-
   --depth: 0;
   --noise: 0;
 }
 
 /*
-  Map @scaffold-ui components (AddressInput, Balance, Debug Contracts) to our theme tokens.
-  `[data-theme]` + source order beats the library's own :root / dark defaults.
+  @scaffold-ui components (AddressInput, Debug Contracts) read the same tokens.
+  Its "primary" is a light surface with dark content, so it maps to secondary/foreground.
 */
 :root,
 [data-theme] {
-  --color-sui-primary: var(--color-primary);
-  --color-sui-primary-content: var(--color-primary-content);
-  --color-sui-primary-subtle: var(--color-base-300);
-  --color-sui-primary-neutral: var(--color-base-100);
-  --color-sui-accent: var(--color-base-content);
-  --color-sui-base-content: var(--color-base-content);
-  --color-sui-error: var(--color-error);
-  --color-sui-warning: var(--color-warning);
-  --color-sui-input-background: var(--color-base-100);
-  --color-sui-input-border: var(--color-base-300);
+  --color-sui-primary: var(--secondary);
+  --color-sui-primary-content: var(--foreground);
+  --color-sui-primary-subtle: var(--border);
+  --color-sui-primary-neutral: var(--card);
+  --color-sui-accent: var(--muted-foreground);
+  --color-sui-base-content: var(--foreground);
+  --color-sui-error: var(--destructive);
+  --color-sui-input-background: var(--card);
+  --color-sui-input-border: var(--input);
 }
 
 @layer base {
-  /* Tailwind v4 defaults borders to currentColor; use the theme's divider color instead */
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-base-300, currentColor);
+  * {
+    @apply border-border outline-ring/50;
   }
 
   html {
@@ -124,18 +194,6 @@
 
   body {
     min-height: 100dvh;
-    @apply bg-base-100 font-sans text-base-content antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
   }
-}
-
-.btn {
-  box-shadow: none;
-}
-
-.link {
-  text-underline-offset: 2px;
-}
-
-.link:hover {
-  opacity: 80%;
 }

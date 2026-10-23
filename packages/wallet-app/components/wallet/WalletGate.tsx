@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 import { useIsClient } from "usehooks-ts";
 import { type Address } from "viem";
 import { useAccount } from "wagmi";
-import { Skeleton } from "~~/components/ui";
+import { Skeleton } from "~~/components/legacy-ui";
 import { ConnectPrompt } from "~~/components/wallet/ConnectPrompt";
 import { WrongNetwork } from "~~/components/wallet/WrongNetwork";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";

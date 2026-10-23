@@ -15,8 +15,8 @@ import {
   MoonIcon,
   SunIcon,
 } from "@heroicons/react/24/outline";
+import { Avatar, ListItem, Sheet } from "~~/components/legacy-ui";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { Avatar, ListItem, Sheet } from "~~/components/ui";
 import { useCopyToClipboard, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { shortenAddress } from "~~/utils/ui";
 

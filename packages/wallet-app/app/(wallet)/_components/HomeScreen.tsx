@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type Address } from "viem";
 import { hardhat } from "viem/chains";
 import { ArrowDownIcon, ArrowUpIcon, BanknotesIcon } from "@heroicons/react/24/outline";
-import { type TabItem, Tabs } from "~~/components/ui";
+import { type TabItem, Tabs } from "~~/components/legacy-ui";
 import { ActionBar, ActionButton, ActivityList, BalanceHero, TokenList, WalletHeader } from "~~/components/wallet";
 import { useLocalFaucet } from "~~/hooks/mdp";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";

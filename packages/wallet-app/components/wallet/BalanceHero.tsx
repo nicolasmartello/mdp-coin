@@ -1,7 +1,7 @@
 "use client";
 
 import { type Address } from "viem";
-import { Skeleton } from "~~/components/ui";
+import { Skeleton } from "~~/components/legacy-ui";
 import { useMdpBalance } from "~~/hooks/mdp";
 import { MDP_TOKEN } from "~~/utils/mdp/token";
 import { formatTokenAmount } from "~~/utils/ui";

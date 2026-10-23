@@ -2,7 +2,7 @@
 
 import { useSwitchChain } from "wagmi";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { Button, EmptyState } from "~~/components/ui";
+import { Button, EmptyState } from "~~/components/legacy-ui";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 
 export const WrongNetwork = () => {

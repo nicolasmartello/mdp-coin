@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { IconButton } from "~~/components/ui/IconButton";
+import { IconButton } from "~~/components/legacy-ui/IconButton";
 
 type SheetProps = {
   open: boolean;

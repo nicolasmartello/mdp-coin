@@ -3,7 +3,7 @@
 import { QRCodeSVG } from "qrcode.react";
 import { type Address } from "viem";
 import { CheckIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { Button, Card } from "~~/components/ui";
+import { Button, Card } from "~~/components/legacy-ui";
 import { useCopyToClipboard, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { MDP_TOKEN } from "~~/utils/mdp/token";
 

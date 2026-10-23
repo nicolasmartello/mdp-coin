@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { type Address } from "viem";
 import { Bars3Icon, CheckIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { IconButton } from "~~/components/legacy-ui";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { IconButton } from "~~/components/ui";
 import { AccountMenu } from "~~/components/wallet/AccountMenu";
 import { useCopyToClipboard, useNetworkColor, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { shortenAddress } from "~~/utils/ui";

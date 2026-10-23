@@ -3,7 +3,7 @@
 import { type SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { type Address, formatUnits, isAddress, isAddressEqual, parseUnits } from "viem";
-import { Button } from "~~/components/ui";
+import { Button } from "~~/components/legacy-ui";
 import { AmountInput } from "~~/components/wallet/AmountInput";
 import { RecipientInput } from "~~/components/wallet/RecipientInput";
 import { useMdpBalance } from "~~/hooks/mdp";

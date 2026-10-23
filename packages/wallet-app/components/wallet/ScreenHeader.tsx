@@ -3,7 +3,7 @@
 import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { IconButton } from "~~/components/ui";
+import { IconButton } from "~~/components/legacy-ui";
 
 type ScreenHeaderProps = {
   title: ReactNode;
