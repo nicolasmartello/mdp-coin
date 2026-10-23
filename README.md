@@ -1,83 +1,99 @@
-# 🏗 Scaffold-ETH 2
+# MdpCoin (MDP) · Blockchain Lab
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+> [!WARNING]
+> **This is a learning project.** MdpCoin is a fake coin: it **will never be deployed** to Ethereum mainnet or any public network, it has no value, and it cannot be bought or sold.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+This repo is a **lab** for learning end-to-end blockchain development: writing a smart contract, testing it, deploying it to a local chain, and building a web interface that interacts with it. It is built on [Scaffold-ETH 2](https://scaffoldeth.io), an open-source starter kit for Ethereum dApps.
 
-> [!NOTE]
-> 🤖 Scaffold-ETH 2 is AI-ready! It has everything agents need to build on Ethereum. Check `.agents/`, `.claude/`, `.opencode` or `.cursor/` for more info.
+## What is MdpCoin
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+MdpCoin (symbol **MDP**) is an [ERC-20](https://eips.ethereum.org/EIPS/eip-20) token, Ethereum's standard for fungible tokens. Its logo is the Punta Mogotes lighthouse of Mar del Plata.
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+The contract ([`MdpCoin.sol`](packages/hardhat/contracts/MdpCoin.sol)) follows the conventions of real-world DeFi tokens:
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+- **Built on [OpenZeppelin](https://docs.openzeppelin.com/contracts/5.x/erc20)**: it inherits audited implementations instead of writing the standard from scratch.
+- **Fixed supply of 1,000,000 MDP**: every token is minted once, at deployment. There is no `mint` function, so nobody can create more.
+- **Immutable**: no proxy and not upgradeable. The deployed code is the final code.
+- **Permit ([EIP-2612](https://eips.ethereum.org/EIPS/eip-2612))**: allowances can be granted with a signature, without paying gas for an `approve` transaction.
 
-## Requirements
+### MdpCoin is not a stablecoin
 
-Before you begin, you need to install the following tools:
+A stablecoin (such as USDC or DAI) holds a peg to a currency, for example 1 token = 1 USD, backed by reserves, collateral, or some stabilization mechanism.
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+**MdpCoin has none of that**:
 
-## Quickstart
+- It is not pegged to the US dollar, the Argentine peso, or any other currency or asset.
+- It is not backed by reserves or collateral.
+- It has no price: it only exists on a local development blockchain, where tokens are handed out for free by a faucet.
 
-To get started with Scaffold-ETH 2, follow the steps below:
+## Why this stack
 
-1. Install dependencies if it was skipped in CLI:
+### Scaffold-ETH 2
+
+It takes care of the tedious part of starting a dApp. It ships with a local blockchain, deploy scripts, a test wallet (*burner wallet*) with a faucet, and React hooks that read the ABI of the deployed contract. When you change and redeploy the contract, the frontend updates automatically and stays fully typed.
+
+### Hardhat instead of Foundry
+
+Scaffold-ETH 2 offers two frameworks for the smart contract side: [Hardhat](https://hardhat.org) and [Foundry](https://getfoundry.sh). We chose **Hardhat** because:
+
+- **The whole project stays in TypeScript.** Tests, deploy scripts, and the frontend share the same language and libraries (ethers/viem). For someone coming from web development, the learning curve is shorter.
+- **Tests look like real usage.** A Hardhat test calls the contract the same way a frontend or a script would: connect a signer, send a transaction, wait for the event. That helps build intuition for how contracts are consumed from the outside.
+- **Built-in tooling**: a local network with `console.log` in Solidity, readable stack traces when a transaction reverts, and per-function gas reports.
+
+Foundry is also a great option. It is faster (written in Rust), tests are written in Solidity, and it has built-in fuzzing, so it is widely used for audits and complex contracts. For this lab, keeping a single language across the project mattered more.
+
+### Next.js
+
+The frontend uses [Next.js](https://nextjs.org) with the **App Router**:
+
+- **File-based routing and nested layouts.** Every folder in `app/` is a route, with no router to configure by hand. We use *route groups* to give each section its own layout without changing URLs:
+  - `app/(wallet)/`: the wallet screens (`/`, `/send`, `/receive`), mobile-first.
+  - `app/(dev)/`: developer tools (`/debug`, `/blockexplorer`), with a desktop layout.
+- **Optimized builds** with code splitting, optimized fonts (`next/font`), and per-page metadata.
+- **It comes integrated with Scaffold-ETH 2**, together with wagmi, viem, and RainbowKit.
+
+**There is no custom backend.** Every page is statically generated at build time. The wallet screens are client components that read from and write to the blockchain directly from the browser, through the user's wallet. In a dApp, the smart contract is the backend. The Next.js server is only used during development (`yarn start`) to serve the app with hot reload.
+
+## Project structure
 
 ```
-cd my-dapp-example
+packages/
+├── hardhat/                    ← smart contracts
+│   ├── contracts/MdpCoin.sol   ← the token
+│   ├── deploy/                 ← deploy scripts (rocketh / hardhat-deploy)
+│   └── test/MdpCoin.ts         ← contract tests
+└── nextjs/                     ← frontend
+    ├── app/(wallet)/           ← wallet screens
+    ├── app/(dev)/              ← Debug Contracts and Block Explorer
+    ├── components/ui/          ← reusable UI primitives, no blockchain logic
+    ├── components/wallet/      ← wallet features (balance, send, activity…)
+    ├── hooks/mdp/              ← token logic: balance, history, local faucet
+    └── styles/globals.css      ← design tokens: colors, typography, radii (Tailwind + DaisyUI)
+```
+
+## Getting started
+
+Requirements: [Node.js](https://nodejs.org) ≥ 22.10, [Yarn](https://yarnpkg.com), and Git.
+
+```bash
 yarn install
+
+# Run each command in its own terminal:
+yarn chain     # start a local blockchain (Hardhat Network)
+yarn deploy    # deploy MdpCoin to that local chain
+yarn start     # open the wallet at http://localhost:3000
 ```
 
-2. Run a local network in the first terminal:
+In the wallet, the **Faucet** button gives you test ETH (to pay for gas) and 100 MDP. From there you can send and receive MDP between local accounts.
 
-```
-yarn chain
-```
+Contract tests:
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
+```bash
+yarn hardhat:test
 ```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+## Credits
 
-4. On a third terminal, start your NextJS app:
+Built with [Scaffold-ETH 2](https://github.com/scaffold-eth/scaffold-eth-2) by [BuidlGuidl](https://buidlguidl.com), [OpenZeppelin Contracts](https://www.openzeppelin.com/contracts), [Hardhat](https://hardhat.org), [Next.js](https://nextjs.org), [wagmi](https://wagmi.sh), [viem](https://viem.sh), [RainbowKit](https://www.rainbowkit.com), [Tailwind CSS](https://tailwindcss.com), and [DaisyUI](https://daisyui.com).
 
-```
-yarn start
-```
-
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
-
-Run smart contract test with `yarn hardhat:test`
-
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
-
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+MIT licensed (see [LICENCE](LICENCE)).

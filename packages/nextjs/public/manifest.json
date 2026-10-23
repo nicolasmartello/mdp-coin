@@ -1,5 +1,5 @@
 {
-  "name": "Scaffold-ETH 2 DApp",
-  "description": "A DApp built with Scaffold-ETH",
-  "iconPath": "logo.svg"
+  "name": "MdpCoin",
+  "description": "A learning lab wallet for MdpCoin (MDP), built with Scaffold-ETH 2",
+  "iconPath": "mdp-logo.svg"
 }
