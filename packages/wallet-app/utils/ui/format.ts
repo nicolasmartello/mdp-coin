@@ -22,9 +22,9 @@ export const shortenAddress = (address: string, chars = 4) =>
 /**
  * Relative time for activity rows: "30 seconds ago", "yesterday", "Oct 12"
  */
-export const formatRelativeTime = (timestampSeconds: bigint | number) => {
+export const formatRelativeTime = (timestampSeconds: bigint | number, nowMs = Date.now()) => {
   const date = new Date(Number(timestampSeconds) * 1000);
-  const diffSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+  const diffSeconds = Math.round((date.getTime() - nowMs) / 1000);
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
   if (Math.abs(diffSeconds) < 60) return rtf.format(diffSeconds, "second");

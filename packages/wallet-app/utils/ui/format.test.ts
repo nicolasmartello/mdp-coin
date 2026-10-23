@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { TEST_ACCOUNT } from "~~/test/wallet";
 import { formatRelativeTime, formatTokenAmount, shortenAddress } from "~~/utils/ui/format";
 
-const now = () => Math.floor(Date.now() / 1000);
+// A fixed "now" keeps relative-time tests deterministic
+const NOW_MS = Date.UTC(2026, 9, 23, 12, 0, 0);
+const NOW_SECONDS = NOW_MS / 1000;
 
 describe("formatTokenAmount", () => {
   it("groups thousands and truncates to 4 decimals", () => {
@@ -26,10 +28,14 @@ describe("shortenAddress", () => {
 
 describe("formatRelativeTime", () => {
   it("formats seconds in English", () => {
-    expect(formatRelativeTime(now() - 30)).toBe("30 seconds ago");
+    expect(formatRelativeTime(NOW_SECONDS - 30, NOW_MS)).toBe("30 seconds ago");
   });
 
   it("formats hours in English", () => {
-    expect(formatRelativeTime(now() - 7200)).toBe("2 hours ago");
+    expect(formatRelativeTime(NOW_SECONDS - 7200, NOW_MS)).toBe("2 hours ago");
+  });
+
+  it("formats older dates as day and month", () => {
+    expect(formatRelativeTime(NOW_SECONDS - 3 * 86400, NOW_MS)).toBe("Oct 20");
   });
 });
