@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- MdpCoin mark: the Punta Mogotes lighthouse (Mar del Plata) on a night-sea coin -->
+  <defs>
+    <clipPath id="coin">
+      <circle cx="32" cy="32" r="32" />
+    </clipPath>
+    <!-- Truncated-cone tower -->
+    <clipPath id="tower">
+      <path d="M26 25h12l3.5 27h-19z" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#coin)">
+    <rect width="64" height="64" fill="#13254a" />
+    <circle cx="12" cy="36" r="1" fill="#ffffff" opacity=".6" />
+    <circle cx="52" cy="38" r="1" fill="#ffffff" opacity=".6" />
+
+    <!-- Light beams -->
+    <path d="M32 17.5 0 6v22z" fill="#ffd23f" opacity=".35" />
+    <path d="M32 17.5 64 6v22z" fill="#ffd23f" opacity=".35" />
+
+    <!-- Sea -->
+    <path d="M0 53c5.3-2 10.7-2 16 0s10.7 2 16 0 10.7-2 16 0 10.7 2 16 0v11H0z" fill="#2563eb" />
+
+    <!-- Tower: 5 horizontal red and white bands -->
+    <g clip-path="url(#tower)">
+      <rect x="20" y="25" width="24" height="5.4" fill="#d62828" />
+      <rect x="20" y="30.4" width="24" height="5.4" fill="#ffffff" />
+      <rect x="20" y="35.8" width="24" height="5.4" fill="#d62828" />
+      <rect x="20" y="41.2" width="24" height="5.4" fill="#ffffff" />
+      <rect x="20" y="46.6" width="24" height="5.4" fill="#d62828" />
+    </g>
+
+    <!-- Gallery, lantern and red dome -->
+    <rect x="24" y="22.5" width="16" height="2.5" rx="1" fill="#e5e7eb" />
+    <rect x="28" y="14.5" width="8" height="8" fill="#ffd23f" />
+    <path d="M27 14.5c0-4 2.2-6 5-6s5 2 5 6z" fill="#d62828" />
+    <rect x="31.3" y="5.5" width="1.4" height="3.5" rx=".7" fill="#d62828" />
+  </g>
+</svg>
