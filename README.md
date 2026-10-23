@@ -63,37 +63,69 @@ packages/
 │   ├── deploy/                 ← deploy scripts (rocketh / hardhat-deploy)
 │   └── test/MdpCoin.ts         ← contract tests
 └── wallet-app/                 ← frontend
-    ├── app/(wallet)/           ← wallet screens
+    ├── app/(wallet)/           ← wallet screens: wallet, activity, settings, send, receive
     ├── app/(dev)/              ← Debug Contracts and Block Explorer
-    ├── components/ui/          ← reusable UI primitives, no blockchain logic
-    ├── components/wallet/      ← wallet features (balance, send, activity…)
+    ├── components/ui/          ← shadcn/ui components, no blockchain logic
+    ├── components/wallet/      ← wallet features (balance card, send form, activity…)
     ├── hooks/mdp/              ← token logic: balance, history, local faucet
-    └── styles/globals.css      ← design tokens: colors, typography, radii (Tailwind + DaisyUI)
+    ├── styles/globals.css      ← design tokens for light and dark themes
+    └── test/                   ← test harness: providers, MSW JSON-RPC node emulator
 ```
 
-## Getting started
+## Run locally
 
 Requirements: [Node.js](https://nodejs.org) ≥ 22.10, [Yarn](https://yarnpkg.com), and Git.
 
-```bash
-yarn install
+1. Install dependencies:
+   ```bash
+   yarn install
+   ```
+2. Start a local blockchain (Hardhat Network) and leave it running:
+   ```bash
+   yarn chain
+   ```
+3. In a second terminal, deploy MdpCoin to that chain:
+   ```bash
+   yarn deploy
+   ```
+4. In a third terminal, start the wallet and open http://localhost:3000:
+   ```bash
+   yarn start
+   ```
 
-# Run each command in its own terminal:
-yarn chain     # start a local blockchain (Hardhat Network)
-yarn deploy    # deploy MdpCoin to that local chain
-yarn start     # open the wallet at http://localhost:3000
-```
+The local burner wallet connects automatically. The **Faucet** tile gives you test ETH (for gas) and 100 MDP; from there you can send and receive MDP between local accounts.
 
-In the wallet, the **Faucet** button gives you test ETH (to pay for gas) and 100 MDP. From there you can send and receive MDP between local accounts.
+## Testing
 
-Contract tests:
+| Layer | Tools |
+|---|---|
+| Contracts | Hardhat test (Mocha + Chai, ethers), coverage with `hardhat test --coverage` |
+| Wallet app | [Vitest](https://vitest.dev), [React Testing Library](https://testing-library.com/react), [MSW](https://mswjs.io), `@vitest/coverage-v8` |
 
-```bash
-yarn hardhat:test
-```
+Both packages fail their test command below **80% coverage**.
+
+Wallet tests render the real components inside the real provider tree (wagmi, React Query, RainbowKit, theme) and connect the real Scaffold-ETH burner wallet. **Only the network is mocked**: MSW emulates the Hardhat JSON-RPC node with in-memory balances, blocks and Transfer logs, so a test that sends MDP really signs a transaction and sees the balances change. Hooks and components are never mocked, and any request without a handler fails the test.
+
+## Test locally
+
+No running chain is needed for the tests.
+
+1. Run everything (contract coverage, then wallet tests with coverage):
+   ```bash
+   yarn test
+   ```
+2. Or one package at a time:
+   ```bash
+   yarn hardhat:coverage   # contracts
+   yarn next:test          # wallet app
+   ```
+3. Watch mode while developing the wallet:
+   ```bash
+   yarn workspace @mdp-coin/wallet-app test:watch
+   ```
 
 ## Credits
 
-Built with [Scaffold-ETH 2](https://github.com/scaffold-eth/scaffold-eth-2) by [BuidlGuidl](https://buidlguidl.com), [OpenZeppelin Contracts](https://www.openzeppelin.com/contracts), [Hardhat](https://hardhat.org), [Next.js](https://nextjs.org), [wagmi](https://wagmi.sh), [viem](https://viem.sh), [RainbowKit](https://www.rainbowkit.com), [Tailwind CSS](https://tailwindcss.com), and [DaisyUI](https://daisyui.com).
+Built with [Scaffold-ETH 2](https://github.com/scaffold-eth/scaffold-eth-2) by [BuidlGuidl](https://buidlguidl.com), [OpenZeppelin Contracts](https://www.openzeppelin.com/contracts), [Hardhat](https://hardhat.org), [Next.js](https://nextjs.org), [wagmi](https://wagmi.sh), [viem](https://viem.sh), [RainbowKit](https://www.rainbowkit.com), [Tailwind CSS](https://tailwindcss.com), [shadcn/ui](https://ui.shadcn.com), [Vitest](https://vitest.dev), [Testing Library](https://testing-library.com), and [MSW](https://mswjs.io).
 
 MIT licensed (see [LICENCE](LICENCE)).
