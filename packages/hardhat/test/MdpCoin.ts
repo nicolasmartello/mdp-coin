@@ -7,16 +7,24 @@ const { provider, networkHelpers, ethers } = await network.create();
 
 const INITIAL_SUPPLY = ethers.parseUnits("1000000", 18);
 
-// We define a fixture to reuse the same setup in every test.
+// Deploys through hardhat-ethers so `hardhat test --coverage` measures the instrumented bytecode
 async function deployFixture() {
-  const env = await loadAndExecuteDeploymentsFromFiles({ provider });
-  const { address, abi } = env.get<Abi_MdpCoin>("MdpCoin");
-  const mdpCoin = await ethers.getContractAt(abi, address);
   const [deployer, alice, bob] = await ethers.getSigners();
+  const mdpCoin = await ethers.deployContract("MdpCoin", [deployer.address]);
   return { mdpCoin, deployer, alice, bob };
 }
 
 describe("MdpCoin", function () {
+  describe("Deploy script", function () {
+    it("Should deploy MdpCoin with the whole supply minted to the deployer", async function () {
+      const env = await loadAndExecuteDeploymentsFromFiles({ provider });
+      const { address, abi } = env.get<Abi_MdpCoin>("MdpCoin");
+      const mdpCoin = await ethers.getContractAt(abi, address);
+      const [deployer] = await ethers.getSigners();
+      expect(await mdpCoin.balanceOf(deployer.address)).to.equal(INITIAL_SUPPLY);
+    });
+  });
+
   describe("Deployment", function () {
     it("Should have the right name, symbol and decimals", async function () {
       const { mdpCoin } = await networkHelpers.loadFixture(deployFixture);
