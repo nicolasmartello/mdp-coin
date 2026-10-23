@@ -1,8 +1,8 @@
 const path = require("path");
 
 const buildNextEslintCommand = (filenames) =>
-  `yarn workspace @se-2/nextjs eslint --fix ${filenames
-    .map((f) => path.relative(path.join("packages", "nextjs"), f))
+  `yarn workspace @mdp-coin/wallet-app eslint --fix ${filenames
+    .map((f) => path.relative(path.join("packages", "wallet-app"), f))
     .join(" ")}`;
 
 const checkTypesNextCommand = () => "yarn next:check-types";
@@ -13,7 +13,7 @@ const buildHardhatEslintCommand = (filenames) =>
     .join(" ")}`;
 
 module.exports = {
-  "packages/nextjs/**/*.{ts,tsx}": [
+  "packages/wallet-app/**/*.{ts,tsx}": [
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],

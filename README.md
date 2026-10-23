@@ -62,7 +62,7 @@ packages/
 │   ├── contracts/MdpCoin.sol   ← the token
 │   ├── deploy/                 ← deploy scripts (rocketh / hardhat-deploy)
 │   └── test/MdpCoin.ts         ← contract tests
-└── nextjs/                     ← frontend
+└── wallet-app/                 ← frontend
     ├── app/(wallet)/           ← wallet screens
     ├── app/(dev)/              ← Debug Contracts and Block Explorer
     ├── components/ui/          ← reusable UI primitives, no blockchain logic

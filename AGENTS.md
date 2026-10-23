@@ -11,7 +11,7 @@ Scaffold-ETH 2 (SE-2) is a starter kit for building dApps on Ethereum. It comes 
 
 Both flavors share the same frontend package:
 
-- **packages/nextjs**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
+- **packages/wallet-app**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
 
 ### Detecting Which Flavor You're Using
 
@@ -91,7 +91,7 @@ yarn vercel:yolo --prod # for deployment of frontend
 
 #### Both Flavors
 
-- After `yarn deploy`, ABIs are auto-generated to `packages/nextjs/contracts/deployedContracts.ts`
+- After `yarn deploy`, ABIs are auto-generated to `packages/wallet-app/contracts/deployedContracts.ts`
 
 ### Frontend Contract Interaction
 
@@ -100,7 +100,7 @@ yarn vercel:yolo --prod # for deployment of frontend
 - `useScaffoldReadContract` - NOT ~~useScaffoldContractRead~~
 - `useScaffoldWriteContract` - NOT ~~useScaffoldContractWrite~~
 
-Contract data is read from two files in `packages/nextjs/contracts/`:
+Contract data is read from two files in `packages/wallet-app/contracts/`:
 
 - `deployedContracts.ts`: Auto-generated from deployments
 - `externalContracts.ts`: Manually added external contracts
@@ -143,7 +143,7 @@ const { data: events, isLoading } = useScaffoldEventHistory({
 
 SE-2 also provides other hooks to interact with blockchain data: `useScaffoldWatchContractEvent`, `useScaffoldEventHistory`, `useDeployedContractInfo`, `useScaffoldContract`, `useTransactor`.
 
-**IMPORTANT: Always use hooks from `packages/nextjs/hooks/scaffold-eth` for contract interactions. Always refer to the hook names as they exist in the codebase.**
+**IMPORTANT: Always use hooks from `packages/wallet-app/hooks/scaffold-eth` for contract interactions. Always refer to the hook names as they exist in the codebase.**
 
 ### UI Components
 
@@ -184,7 +184,7 @@ Add RPC endpoints in `packages/foundry/foundry.toml` if not present.
 
 #### NextJs
 
-Add networks in `packages/nextjs/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
+Add networks in `packages/wallet-app/scaffold.config.ts` if not present. This file also contains configuration for polling interval, API keys. Remember to decrease the polling interval for L2 chains.
 
 ## Code Style Guide
 
