@@ -6,7 +6,7 @@ import { MDP_TOKEN } from "~~/utils/mdp/token";
 
 const Receive: NextPage = () => (
   <>
-    <ScreenHeader title={`Recibir ${MDP_TOKEN.symbol}`} />
+    <ScreenHeader title={`Receive ${MDP_TOKEN.symbol}`} />
     <WalletGate>{address => <ReceiveCard address={address} />}</WalletGate>
   </>
 );

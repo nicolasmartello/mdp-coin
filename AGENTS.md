@@ -11,7 +11,7 @@ Scaffold-ETH 2 (SE-2) is a starter kit for building dApps on Ethereum. It comes 
 
 Both flavors share the same frontend package:
 
-- **packages/wallet-app**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS with DaisyUI)
+- **packages/wallet-app**: React frontend (Next.js App Router, not Pages Router, RainbowKit, Wagmi, Viem, TypeScript, Tailwind CSS; the wallet uses shadcn/ui, DaisyUI only on the Scaffold-ETH dev pages)
 
 ### Detecting Which Flavor You're Using
 
@@ -161,15 +161,16 @@ Use `notification` from `~~/utils/scaffold-eth` for success/error/warning feedba
 
 ### Styling
 
-**Use DaisyUI classes** for building frontend components.
+**Use shadcn/ui components** (`~~/components/ui`) and the theme tokens in `styles/globals.css` for the wallet. DaisyUI is only kept for the Scaffold-ETH dev pages (`app/(dev)`, `components/scaffold-eth`).
 
 ```tsx
-// ✅ Good - using DaisyUI classes
-<button className="btn btn-primary">Connect</button>
-<div className="card bg-base-100 shadow-xl">...</div>
+// ✅ Good - shadcn component and semantic tokens
+<Button className="rounded-full">Connect</Button>
+<Card className="shadow-card">...</Card>
 
-// ❌ Avoid - raw Tailwind when DaisyUI has a component
-<button className="px-4 py-2 bg-blue-500 text-white rounded">Connect</button>
+// ❌ Avoid - DaisyUI classes or hard-coded colors in the wallet
+<button className="btn btn-primary">Connect</button>
+<div className="bg-blue-500 text-white">...</div>
 ```
 
 ### Configure Target Network before deploying to testnet / mainnet.
